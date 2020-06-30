@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final tjmProvider = StateProvider<int>((ref) => 500);
+final tjmProvider = StateProvider<int>((ref) => 0);
 const int maxTjm = 1000;
 final workdayPerYearProvider = StateProvider<int>((ref) => 217);
 const int maxWorkDayPerYear = 365;
@@ -54,7 +55,7 @@ class HomePage extends HookWidget {
     return SafeArea(
       child: Container(
         child: GridView.count(
-          childAspectRatio: 6,
+          childAspectRatio: 5,
           crossAxisCount: 1,
           children: <Widget>[
             ..._tjmRow(tjm),
@@ -70,18 +71,24 @@ class HomePage extends HookWidget {
 
   List<Widget> _tjmRow(StateController<int> tjm) => [
         Align(alignment: Alignment.bottomLeft, child: Text('TJM souhaité: ')),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text('${tjm.state}€'),
-            Slider(
-                min: 0,
-                max: maxTjm.roundToDouble(),
-                value: tjm.state.roundToDouble(),
-                onChanged: (value) => tjm.state = value.round())
-          ],
-        ),
+        CupertinoPicker(
+            itemExtent: 50,
+            onSelectedItemChanged: (value) => tjm.state = value,
+            children: List.generate(
+                1000, (index) => _cupertinoPickerChild('$index€'))),
       ];
+
+  Widget _cupertinoPickerChild(String text) => SizedBox.expand(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.symmetric(
+              vertical:
+                  BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
+            ),
+          ),
+          child: Center(child: Text(text)),
+        ),
+      );
 
   List<Widget> _workDaysRow(StateController<int> workdayPerYear) => [
         Align(
