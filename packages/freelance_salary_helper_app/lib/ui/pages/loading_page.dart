@@ -16,8 +16,6 @@ Future<FranceData> _loadFranceData() async {
   var franceDataJsonString = await AssetReader.readAsStringFromAsset(
       'assets/configs/countries_data/france.json');
   var franceData = FranceData.fromJson(jsonDecode(franceDataJsonString));
-  await Future.delayed(Duration(seconds: 1));
-  print('loaded');
   return franceData;
 }
 
