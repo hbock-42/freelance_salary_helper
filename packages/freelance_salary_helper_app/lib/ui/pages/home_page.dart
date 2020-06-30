@@ -5,8 +5,9 @@ import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final tjmProvider = StateProvider<int>((ref) => 0);
-const int maxTjm = 1000;
+final tjmProvider = StateProvider<int>((ref) => minTjm);
+const int minTjm = 300;
+const int maxTjm = 1500;
 final workdayPerYearProvider = StateProvider<int>((ref) => 217);
 const int maxWorkDayPerYear = 365;
 final rateSavedPerMonthProvider = StateProvider<double>((ref) => 0.15);
@@ -73,9 +74,9 @@ class HomePage extends HookWidget {
         Align(alignment: Alignment.bottomLeft, child: Text('TJM souhaité: ')),
         CupertinoPicker(
             itemExtent: 50,
-            onSelectedItemChanged: (value) => tjm.state = value,
-            children: List.generate(
-                1000, (index) => _cupertinoPickerChild('$index€'))),
+            onSelectedItemChanged: (value) => tjm.state = minTjm + value,
+            children: List.generate((maxTjm - minTjm),
+                (index) => _cupertinoPickerChild('${minTjm + index}€'))),
       ];
 
   Widget _cupertinoPickerChild(String text) => SizedBox.expand(
