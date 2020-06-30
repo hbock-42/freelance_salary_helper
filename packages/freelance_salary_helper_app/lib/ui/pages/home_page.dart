@@ -1,11 +1,155 @@
 import 'package:flutter/material.dart';
-import 'loading_page.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:freelance_salary_helper_app/models/france_data.dart';
+import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomePage extends StatelessWidget {
+final tjmProvider = StateProvider<int>((ref) => 500);
+const int maxTjm = 1000;
+final workdayPerYearProvider = StateProvider<int>((ref) => 217);
+const int maxWorkDayPerYear = 365;
+final rateSavedPerMonthProvider = StateProvider<double>((ref) => 0.15);
+
+final endOfYearCompanyBalanceProvider = Computed<double>((read) {
+  final tjm = read(tjmProvider).state;
+  final workdayPerYear = read(workdayPerYearProvider).state;
+  final FranceData franceData = read(franceDataStateProvider).state;
+  final rateSavedPerMonth = read(rateSavedPerMonthProvider).state;
+
+  var yearlyRevenus = tjm * workdayPerYear;
+  var perMonthInitial = yearlyRevenus / 12;
+  var perMonthAfterTva = perMonthInitial * (1 - franceData.tvaRate);
+  var perMonthSaving = perMonthAfterTva * (rateSavedPerMonth);
+
+  return perMonthSaving * 12;
+});
+
+final realSalaryPerMonthProvider = Computed<double>((read) {
+  final rateSavedPerMonth = read(rateSavedPerMonthProvider).state;
+  final FranceData franceData = read(franceDataStateProvider).state;
+  final tjm = read(tjmProvider).state;
+  final workdayPerYear = read(workdayPerYearProvider).state;
+
+  var yearlyRevenus = tjm * workdayPerYear;
+  var perMonthInitial = yearlyRevenus / 12;
+  var perMonthAfterTva = perMonthInitial * (1 - franceData.tvaRate);
+  var perMonthAfterSaving = perMonthAfterTva * (1 - rateSavedPerMonth);
+  var perMontAfterPatronalAndSalarialCharges = perMonthAfterSaving *
+      (1 -
+          (franceData.chargesRatronalesRate +
+              franceData.chargesSalarialesRate));
+
+  return perMontAfterPatronalAndSalarialCharges;
+});
+
+class HomePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    final tjm = useProvider(tjmProvider);
+    final workdayPerYear = useProvider(workdayPerYearProvider);
+    final rateSavedPerMonth = useProvider(rateSavedPerMonthProvider);
+    final double endOfYearCompanyBalance =
+        useProvider(endOfYearCompanyBalanceProvider);
+    final double realSalaryPerMonth = useProvider(realSalaryPerMonthProvider);
     return SafeArea(
-      child: LoadingPage(),
+      child: Container(
+        child: GridView.count(
+          childAspectRatio: 6,
+          crossAxisCount: 1,
+          children: <Widget>[
+            ..._tjmRow(tjm),
+            ..._workDaysRow(workdayPerYear),
+            ..._rateSavedPerMonthRow(rateSavedPerMonth),
+            ..._endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
+            ..._realSalaryPerMonthRow(realSalaryPerMonth),
+          ],
+        ),
+      ),
     );
   }
+
+  List<Widget> _tjmRow(StateController<int> tjm) => [
+        Align(alignment: Alignment.bottomLeft, child: Text('TJM souhaité: ')),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text('${tjm.state}€'),
+            Slider(
+                min: 0,
+                max: maxTjm.roundToDouble(),
+                value: tjm.state.roundToDouble(),
+                onChanged: (value) => tjm.state = value.round())
+          ],
+        ),
+      ];
+
+  List<Widget> _workDaysRow(StateController<int> workdayPerYear) => [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Text('Nombre de jours travaillés par an: '),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(workdayPerYear.state.toString()),
+            Slider(
+                min: 0,
+                max: maxWorkDayPerYear.roundToDouble(),
+                value: workdayPerYear.state.roundToDouble(),
+                onChanged: (value) => workdayPerYear.state = value.round())
+          ],
+        ),
+      ];
+
+  List<Widget> _rateSavedPerMonthRow(
+          StateController<double> rateSavedPerMonth) =>
+      [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text(
+                'Pourcentage à laisser sur le compte entreprise à la fin du mois: '),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('${(rateSavedPerMonth.state * 100).toStringAsFixed(2)}%'),
+            Slider(
+                min: 0,
+                max: 1,
+                value: rateSavedPerMonth.state,
+                onChanged: (value) => rateSavedPerMonth.state = value)
+          ],
+        ),
+      ];
+
+  List<Widget> _endOfYearCompanyBalanceRow(
+    double endOffYearBalance,
+  ) =>
+      [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Text("Argen sur le compte entreprise à la fin de l'année"),
+        ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text('${endOffYearBalance.toStringAsFixed(2)} €'),
+        ),
+      ];
+
+  List<Widget> _realSalaryPerMonthRow(
+    double realSalaryPerMonth,
+  ) =>
+      [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Text('Gain net par mois'),
+        ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text('${realSalaryPerMonth.toStringAsFixed(2)} €'),
+        ),
+      ];
 }

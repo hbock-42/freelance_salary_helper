@@ -11,7 +11,7 @@ class EntryAfterLoading extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+      home: Material(child: HomePage()),
     );
   }
 }

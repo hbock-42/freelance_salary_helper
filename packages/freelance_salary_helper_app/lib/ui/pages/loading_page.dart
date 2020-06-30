@@ -6,7 +6,11 @@ import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/services/asset_reader.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final franceDataProvider = FutureProvider((ref) async => _loadFranceData());
+import 'entry_after_loading.dart';
+
+final franceDataFutureProvider =
+    FutureProvider((ref) async => _loadFranceData());
+final franceDataStateProvider = StateProvider<FranceData>((ref) => null);
 
 Future<FranceData> _loadFranceData() async {
   var franceDataJsonString = await AssetReader.readAsStringFromAsset(
@@ -20,41 +24,17 @@ Future<FranceData> _loadFranceData() async {
 class LoadingPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<FranceData> snapshot = useProvider(franceDataProvider);
-
+    final AsyncValue<FranceData> snapshot =
+        useProvider(franceDataFutureProvider);
+    final StateController<FranceData> franceDataStateController =
+        useProvider(franceDataStateProvider);
     return snapshot.when(
-        data: (franceData) => Container(child: Center(child: Text("Loaded"))),
+        data: (franceData) {
+          franceDataStateController.state = franceData;
+          return EntryAfterLoading();
+        },
         loading: () => Center(child: CircularProgressIndicator()),
         error: (obj, strackTrace) =>
             Center(child: Text('$strackTrace in $obj')));
   }
 }
-
-// class LoadingPage extends HookWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return HookBuilder(
-//       builder: (context) {
-//         final Future<FranceData> future = useMemoized(() => _loadFranceData());
-//         final AsyncSnapshot<FranceData> snapshot = useFuture(future);
-//         if (snapshot.connectionState == ConnectionState.done) {
-//           return Container(
-//             child: Center(
-//               child: Text('Loaded'),
-//             ),
-//           );
-//         }
-//         return Center(child: CircularProgressIndicator());
-//       },
-//     );
-//   }
-
-//   Future<FranceData> _loadFranceData() async {
-//     var franceDataJsonString = await AssetReader.readAsStringFromAsset(
-//         'assets/configs/countries_data/france.json');
-//     var franceData = FranceData.fromJson(jsonDecode(franceDataJsonString));
-//     await Future.delayed(Duration(seconds: 1));
-//     print('loaded');
-//     return franceData;
-//   }
-// }
