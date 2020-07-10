@@ -19,11 +19,13 @@ final endOfYearCompanyBalanceProvider = Computed<double>((read) {
   final rateSavedPerMonth = read(rateSavedPerMonthProvider).state;
 
   var yearlyRevenus = tjm * workdayPerYear;
-  var perMonthInitial = yearlyRevenus / 12;
-  var perMonthAfterTva = perMonthInitial * (1 - franceData.tvaRate);
-  var perMonthSaving = perMonthAfterTva * (rateSavedPerMonth);
+  var endOffYearBalance = yearlyRevenus * (rateSavedPerMonth);
+  var endOffYearBalanceAfterIs =
+      endOffYearBalance < franceData.taxesOnCompany.first.limit
+          ? endOffYearBalance * (1 - franceData.taxesOnCompany.first.rate)
+          : endOffYearBalance * (1 - franceData.taxesOnCompany[1].rate);
 
-  return perMonthSaving * 12;
+  return endOffYearBalanceAfterIs;
 });
 
 final realSalaryPerMonthProvider = Computed<double>((read) {
@@ -33,9 +35,8 @@ final realSalaryPerMonthProvider = Computed<double>((read) {
   final workdayPerYear = read(workdayPerYearProvider).state;
 
   var yearlyRevenus = tjm * workdayPerYear;
-  var perMonthInitial = yearlyRevenus / 12;
-  var perMonthAfterTva = perMonthInitial * (1 - franceData.tvaRate);
-  var perMonthAfterSaving = perMonthAfterTva * (1 - rateSavedPerMonth);
+  var perMonth = yearlyRevenus / 12;
+  var perMonthAfterSaving = perMonth * (1 - rateSavedPerMonth);
   var perMontAfterPatronalAndSalarialCharges = perMonthAfterSaving *
       (1 -
           (franceData.chargesRatronalesRate +
@@ -71,7 +72,9 @@ class HomePage extends HookWidget {
   }
 
   List<Widget> _tjmRow(StateController<int> tjm) => [
-        Align(alignment: Alignment.bottomLeft, child: Text('TJM souhaité: ')),
+        Align(
+            alignment: Alignment.bottomLeft,
+            child: Text('TJM souhaité (HT): ')),
         CupertinoPicker(
             itemExtent: 50,
             onSelectedItemChanged: (value) => tjm.state = minTjm + value,
@@ -127,6 +130,7 @@ class HomePage extends HookWidget {
             Slider(
                 min: 0,
                 max: 1,
+                divisions: 100,
                 value: rateSavedPerMonth.state,
                 onChanged: (value) => rateSavedPerMonth.state = value)
           ],
@@ -139,7 +143,8 @@ class HomePage extends HookWidget {
       [
         Align(
           alignment: Alignment.bottomLeft,
-          child: Text("Argen sur le compte entreprise à la fin de l'année"),
+          child: Text(
+              "Argent sur le compte entreprise à la fin de l'année (apres IS)"),
         ),
         Align(
           alignment: Alignment.topLeft,
