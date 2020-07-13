@@ -47,6 +47,15 @@ final realSalaryPerMonthProvider = Computed<double>((read) {
   return perMontAfterPatronalAndSalarialCharges;
 });
 
+final yearTotalRevenueAfterTaxesProvider = Computed<double>((read) {
+  final endOfYearBalance = read(endOfYearCompanyBalanceProvider);
+  final FranceData franceData = read(franceDataStateProvider).state;
+  final realSalaryPerMonth = read(realSalaryPerMonthProvider);
+
+  return 12 * realSalaryPerMonth +
+      (1 - franceData.dividendRate) * endOfYearBalance;
+});
+
 class HomePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
@@ -56,11 +65,13 @@ class HomePage extends HookWidget {
     final double endOfYearCompanyBalance =
         useProvider(endOfYearCompanyBalanceProvider);
     final double realSalaryPerMonth = useProvider(realSalaryPerMonthProvider);
+    final double yearTotalRevenueAfterTaxes =
+        useProvider(yearTotalRevenueAfterTaxesProvider);
     return SafeArea(
       child: Container(
         padding: EdgeInsets.only(top: 30),
         child: GridView.count(
-          childAspectRatio: 5,
+          childAspectRatio: 6,
           crossAxisCount: 1,
           children: <Widget>[
             _tjmRow(tjm),
@@ -68,6 +79,7 @@ class HomePage extends HookWidget {
             ..._rateSavedPerMonthRow(rateSavedPerMonth),
             ..._endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
             ..._realSalaryPerMonthRow(realSalaryPerMonth),
+            ..._yearTotalRevenueAfterTaxes(yearTotalRevenueAfterTaxes),
           ],
         ),
       ),
@@ -144,6 +156,21 @@ class HomePage extends HookWidget {
         Align(
           alignment: Alignment.topLeft,
           child: Text('${endOffYearBalance.toStringAsFixed(2)} €'),
+        ),
+      ];
+
+  List<Widget> _yearTotalRevenueAfterTaxes(
+    double yearTotalRevenueAfterTaxes,
+  ) =>
+      [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Text(
+              "Total gain après taxes par an (après impôt dividendes + full cashout)"),
+        ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text('${yearTotalRevenueAfterTaxes.toStringAsFixed(2)} €'),
         ),
       ];
 
