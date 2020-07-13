@@ -1,10 +1,10 @@
 {
-  "tvaRate": 0.1666,
-  "chargesRatronalesRate": 0.32,
-  "chargesSalarialesRate": 0.17,
+  "tvaRate": 0.2,
+  "chargesRatronalesRate": 0.2888,
+  "chargesSalarialesRate": 0.1555,
   "taxesOnCompany": [
-    { "limit": 33900, "rate": 0.15 },
+    { "limit": 38120, "rate": 0.15 },
     { "limit": -1, "rate": 0.28 }
   ],
-  "dividendRate": 0.15
+  "dividendRate": 0.172
 }

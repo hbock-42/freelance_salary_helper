@@ -6,11 +6,11 @@ import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
 import 'package:freelance_salary_helper_app/ui/widgets/cupertino_number_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final tjmProvider = StateProvider<int>((ref) => minTjm);
+final tjmProvider = StateProvider<int>((ref) => initialTjm);
 const int minTjm = 0;
 const int maxTjm = 9999;
 const int initialTjm = 450;
-final workdayPerYearProvider = StateProvider<int>((ref) => 217);
+final workdayPerYearProvider = StateProvider<int>((ref) => 210);
 const int maxWorkDayPerYear = 365;
 final rateSavedPerMonthProvider = StateProvider<double>((ref) => 0.15);
 
