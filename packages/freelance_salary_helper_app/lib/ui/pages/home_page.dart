@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
+import 'package:freelance_salary_helper_app/ui/widgets/cupertino_number_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final tjmProvider = StateProvider<int>((ref) => minTjm);
@@ -75,11 +76,22 @@ class HomePage extends HookWidget {
         Align(
             alignment: Alignment.bottomLeft,
             child: Text('TJM souhaité (HT): ')),
-        CupertinoPicker(
-            itemExtent: 50,
-            onSelectedItemChanged: (value) => tjm.state = minTjm + value,
-            children: List.generate((maxTjm - minTjm),
-                (index) => _cupertinoPickerChild('${minTjm + index}€'))),
+        CupertinoNumberPicker(
+          itemExtent: 50,
+          min: 0,
+          max: 1200,
+        ),
+        // Row(
+        //   children: <Widget>[
+        //     Expanded(
+        //       child: CupertinoPicker(
+        //           itemExtent: 50,
+        //           onSelectedItemChanged: (value) => tjm.state = minTjm + value,
+        //           children: List.generate((maxTjm - minTjm),
+        //               (index) => _cupertinoPickerChild('${minTjm + index}€'))),
+        //     ),
+        //   ],
+        // ),
       ];
 
   Widget _cupertinoPickerChild(String text) => SizedBox.expand(
