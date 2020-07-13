@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,11 +28,15 @@ class _CupertinoNumberPickerState extends State<CupertinoNumberPicker> {
   int _number;
   int get number => _number;
   set number(int value) {
-    _number = value;
-    widget?.onValueChanged(_number);
+    if (_number != value) {
+      _number = value;
+      widget?.onValueChanged(_number);
+    }
   }
 
-  List<int> _digitsValue = List<int>();
+  bool _canListen = true;
+
+  List<FixedExtentScrollController> _scrollControllers;
 
   @override
   void initState() {
@@ -48,6 +54,15 @@ class _CupertinoNumberPickerState extends State<CupertinoNumberPicker> {
 
     _digits = widget.max.toString().length;
 
+    _scrollControllers = List.generate(
+      _digits,
+      (index) => FixedExtentScrollController(
+        initialItem: digitFromPosition(_number, _digits - index - 1),
+      ),
+    );
+
+    _startListeningControllers();
+
     super.initState();
   }
 
@@ -58,26 +73,64 @@ class _CupertinoNumberPickerState extends State<CupertinoNumberPicker> {
       children: List.generate(
         _digits,
         (index) => CupertinoDigitPicker(
+          scrollController: _scrollControllers[index],
           itemExtent: widget.itemExtent,
-          onDigitChanged: (value) => _onDigitChanged(value, index),
         ),
       ),
     );
   }
 
-  void _onDigitChanged(int digitValue, int powerOfTen) {}
+  int digitFromPosition(int number, int position) {
+    return (number.remainder(pow(10, 1 + position)) -
+            number.remainder(pow(10, position))) ~/
+        pow(10, position);
+  }
+
+  void _onDigitChanged() {
+    int newNumber = 0;
+    for (var controller in _scrollControllers) {
+      newNumber *= 10;
+      newNumber += controller.selectedItem;
+    }
+    if (newNumber < widget.min) {
+      number = widget.min;
+      _setControllersToValue(widget.min);
+    } else if (newNumber > widget.max) {
+      number = widget.max;
+      _setControllersToValue(widget.max);
+    } else {
+      number = newNumber;
+    }
+  }
+
+  void _setControllersToValue(int number) {
+    if (_canListen) {
+      _canListen = false;
+      for (var i = 0; i < _scrollControllers.length; i++) {
+        _scrollControllers[i].animateToItem(
+          digitFromPosition(number, _digits - i - 1),
+          duration: Duration(milliseconds: 450),
+          curve: Curves.easeIn,
+        );
+      }
+      Future.delayed(Duration(milliseconds: 450), () => _canListen = true);
+    }
+  }
+
+  void _startListeningControllers() {
+    _scrollControllers.forEach(
+        (controller) => controller.addListener(() => _onDigitChanged()));
+  }
 }
 
 class CupertinoDigitPicker extends StatefulWidget {
   final double itemExtent;
-  final void Function(int) onDigitChanged;
   final FixedExtentScrollController scrollController;
 
   const CupertinoDigitPicker({
     Key key,
     @required this.itemExtent,
-@required this.scrollController,
-    this.onDigitChanged,
+    @required this.scrollController,
   }) : super(key: key);
   @override
   _CupertinoDigitPickerState createState() => _CupertinoDigitPickerState();
@@ -89,13 +142,9 @@ class _CupertinoDigitPickerState extends State<CupertinoDigitPicker> {
     return SizedBox(
       width: 50,
       child: CupertinoPicker(
-        scrollController: ,
+          scrollController: widget.scrollController,
           itemExtent: widget.itemExtent,
-          onSelectedItemChanged: (int value) {
-            setState(() {
-              widget?.onDigitChanged(value);
-            });
-          },
+          onSelectedItemChanged: (int value) {},
           children: List.generate((10), (index) => _cupertinoDigitRow(index))),
     );
   }

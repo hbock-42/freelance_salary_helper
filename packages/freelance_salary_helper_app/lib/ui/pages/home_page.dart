@@ -7,8 +7,9 @@ import 'package:freelance_salary_helper_app/ui/widgets/cupertino_number_picker.d
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final tjmProvider = StateProvider<int>((ref) => minTjm);
-const int minTjm = 300;
-const int maxTjm = 1500;
+const int minTjm = 0;
+const int maxTjm = 9999;
+const int initialTjm = 450;
 final workdayPerYearProvider = StateProvider<int>((ref) => 217);
 const int maxWorkDayPerYear = 365;
 final rateSavedPerMonthProvider = StateProvider<double>((ref) => 0.15);
@@ -57,11 +58,12 @@ class HomePage extends HookWidget {
     final double realSalaryPerMonth = useProvider(realSalaryPerMonthProvider);
     return SafeArea(
       child: Container(
+        padding: EdgeInsets.only(top: 30),
         child: GridView.count(
           childAspectRatio: 5,
           crossAxisCount: 1,
           children: <Widget>[
-            ..._tjmRow(tjm),
+            _tjmRow(tjm),
             ..._workDaysRow(workdayPerYear),
             ..._rateSavedPerMonthRow(rateSavedPerMonth),
             ..._endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
@@ -72,38 +74,19 @@ class HomePage extends HookWidget {
     );
   }
 
-  List<Widget> _tjmRow(StateController<int> tjm) => [
-        Align(
-            alignment: Alignment.bottomLeft,
-            child: Text('TJM souhaité (HT): ')),
-        CupertinoNumberPicker(
-          itemExtent: 50,
-          min: 0,
-          max: 1200,
-        ),
-        // Row(
-        //   children: <Widget>[
-        //     Expanded(
-        //       child: CupertinoPicker(
-        //           itemExtent: 50,
-        //           onSelectedItemChanged: (value) => tjm.state = minTjm + value,
-        //           children: List.generate((maxTjm - minTjm),
-        //               (index) => _cupertinoPickerChild('${minTjm + index}€'))),
-        //     ),
-        //   ],
-        // ),
-      ];
-
-  Widget _cupertinoPickerChild(String text) => SizedBox.expand(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.symmetric(
-              vertical:
-                  BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
-            ),
+  Widget _tjmRow(StateController<int> tjm) => Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('TJM souhaité: '),
+          CupertinoNumberPicker(
+            itemExtent: 50,
+            min: minTjm,
+            max: maxTjm,
+            initialVallue: initialTjm,
+            onValueChanged: (value) => tjm.state = value,
           ),
-          child: Center(child: Text(text)),
-        ),
+          Text('HT'),
+        ],
       );
 
   List<Widget> _workDaysRow(StateController<int> workdayPerYear) => [
