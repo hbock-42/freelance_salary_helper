@@ -9,6 +9,7 @@ class CupertinoNumberPicker extends StatefulWidget {
   final int max;
   final void Function(int) onValueChanged;
   final int initialVallue;
+  final TextStyle textStyle;
 
   const CupertinoNumberPicker({
     Key key,
@@ -17,6 +18,7 @@ class CupertinoNumberPicker extends StatefulWidget {
     @required this.max,
     this.onValueChanged,
     this.initialVallue,
+    this.textStyle,
   }) : super(key: key);
 
   @override
@@ -73,6 +75,7 @@ class _CupertinoNumberPickerState extends State<CupertinoNumberPicker> {
       children: List.generate(
         _digits,
         (index) => CupertinoDigitPicker(
+          textStyle: widget.textStyle,
           scrollController: _scrollControllers[index],
           itemExtent: widget.itemExtent,
         ),
@@ -126,11 +129,13 @@ class _CupertinoNumberPickerState extends State<CupertinoNumberPicker> {
 class CupertinoDigitPicker extends StatefulWidget {
   final double itemExtent;
   final FixedExtentScrollController scrollController;
+  final TextStyle textStyle;
 
   const CupertinoDigitPicker({
     Key key,
     @required this.itemExtent,
     @required this.scrollController,
+    this.textStyle,
   }) : super(key: key);
   @override
   _CupertinoDigitPickerState createState() => _CupertinoDigitPickerState();
@@ -151,11 +156,8 @@ class _CupertinoDigitPickerState extends State<CupertinoDigitPicker> {
 
   Widget _cupertinoDigitRow(int digit) => Container(
         decoration: BoxDecoration(
-          border: Border.symmetric(
-            vertical:
-                BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
-          ),
+          border: Border.all(width: 0.5, color: Colors.grey.withOpacity(0.2)),
         ),
-        child: Center(child: Text(digit.toString())),
+        child: Center(child: Text(digit.toString(), style: widget.textStyle)),
       );
 }

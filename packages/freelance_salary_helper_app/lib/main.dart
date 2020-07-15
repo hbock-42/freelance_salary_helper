@@ -22,8 +22,9 @@ void main() {
     SCIENTIFIC_PATTERN: '#E0',
     PERCENT_PATTERN: '#,##0%',
     CURRENCY_PATTERN: '\u00A4#,##0.00',
-    DEF_CURRENCY_CODE: 'AUD',
+    DEF_CURRENCY_CODE: 'EUR',
   );
+
   runApp(ProviderScope(
       child: Directionality(
           textDirection: TextDirection.ltr, child: LoadingPage())));

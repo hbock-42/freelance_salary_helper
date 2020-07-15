@@ -59,7 +59,6 @@ final yearTotalRevenueAfterTaxesProvider = Computed<double>((read) {
 });
 
 class HomePage extends HookWidget {
-  static const int _decimals = 0;
   final f = NumberFormat(',###', "zz");
 
   @override
@@ -99,12 +98,14 @@ class HomePage extends HookWidget {
         children: [
           Text('TJM: '),
           CupertinoNumberPicker(
+            textStyle: TextStyles.important,
             itemExtent: 50,
             min: minTjm,
             max: maxTjm,
             initialVallue: initialTjm,
             onValueChanged: (value) => tjm.state = value,
           ),
+          SizedBox(width: 5),
           Text('HT'),
         ],
       );
