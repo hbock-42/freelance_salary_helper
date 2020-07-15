@@ -188,18 +188,16 @@ class HomePage extends HookWidget {
   Widget _realSalaryPerMonthRow(
     double realSalaryPerMonth,
   ) =>
-      FittedBox(
-        child: RichText(
-          text: TextSpan(
-            text: 'Total gain per months after taxes: ',
-            style: TextStyles.defaultText,
-            children: [
-              TextSpan(
-                text: '${f.format(realSalaryPerMonth)} €',
-                style: TextStyles.important,
-              ),
-            ],
-          ),
+      RichText(
+        text: TextSpan(
+          text: 'Total gain per months after taxes: ',
+          style: TextStyles.defaultText,
+          children: [
+            TextSpan(
+              text: '${f.format(realSalaryPerMonth)} €',
+              style: TextStyles.important,
+            ),
+          ],
         ),
       );
 }
