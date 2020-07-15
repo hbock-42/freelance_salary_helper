@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
+import 'package:freelance_salary_helper_app/ui/themes/app_colors.dart';
+import 'package:freelance_salary_helper_app/ui/themes/text_styles.dart';
 import 'package:freelance_salary_helper_app/ui/widgets/cupertino_number_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -69,16 +71,19 @@ class HomePage extends HookWidget {
         useProvider(yearTotalRevenueAfterTaxesProvider);
     return SafeArea(
       child: Container(
-        padding: EdgeInsets.only(top: 30),
-        child: GridView.count(
-          childAspectRatio: 6,
-          crossAxisCount: 1,
+        padding: EdgeInsets.only(top: 30, left: 15, right: 15),
+        child: ListView(
           children: <Widget>[
             _tjmRow(tjm),
+            SizedBox(height: 40),
             ..._workDaysRow(workdayPerYear),
+            SizedBox(height: 40),
             ..._rateSavedPerMonthRow(rateSavedPerMonth),
+            SizedBox(height: 40),
             ..._endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
+            SizedBox(height: 40),
             ..._realSalaryPerMonthRow(realSalaryPerMonth),
+            SizedBox(height: 40),
             ..._yearTotalRevenueAfterTaxes(yearTotalRevenueAfterTaxes),
           ],
         ),
@@ -89,7 +94,7 @@ class HomePage extends HookWidget {
   Widget _tjmRow(StateController<int> tjm) => Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('TJM souhaité: '),
+          Text('TJM: '),
           CupertinoNumberPicker(
             itemExtent: 50,
             min: minTjm,
@@ -102,46 +107,49 @@ class HomePage extends HookWidget {
       );
 
   List<Widget> _workDaysRow(StateController<int> workdayPerYear) => [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Text('Nombre de jours travaillés par an: '),
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(workdayPerYear.state.toString()),
-            Slider(
-                min: 0,
-                max: maxWorkDayPerYear.roundToDouble(),
-                value: workdayPerYear.state.roundToDouble(),
-                onChanged: (value) => workdayPerYear.state = value.round())
-          ],
+        RichText(
+            text: TextSpan(
+                text: 'Work days per year: ',
+                style: TextStyles.defaultText,
+                children: [
+              TextSpan(
+                text: workdayPerYear.state.toString(),
+                style: TextStyles.important,
+              ),
+            ])),
+        Slider(
+          min: 0,
+          max: maxWorkDayPerYear.roundToDouble(),
+          value: workdayPerYear.state.roundToDouble(),
+          onChanged: (value) => workdayPerYear.state = value.round(),
         ),
       ];
 
   List<Widget> _rateSavedPerMonthRow(
           StateController<double> rateSavedPerMonth) =>
       [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: FittedBox(
-            fit: BoxFit.fitWidth,
-            child: Text(
-                'Pourcentage à laisser sur le compte entreprise à la fin du mois: '),
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          child: RichText(
+            text: TextSpan(
+              text:
+                  'Pourcentage à laisser sur le compte entreprise à la fin du mois: ',
+              style: TextStyles.defaultText,
+              children: [
+                TextSpan(
+                    text:
+                        '${(rateSavedPerMonth.state * 100).toStringAsFixed(0)}%',
+                    style: TextStyles.important),
+              ],
+            ),
           ),
         ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('${(rateSavedPerMonth.state * 100).toStringAsFixed(2)}%'),
-            Slider(
-                min: 0,
-                max: 1,
-                divisions: 100,
-                value: rateSavedPerMonth.state,
-                onChanged: (value) => rateSavedPerMonth.state = value)
-          ],
-        ),
+        Slider(
+            min: 0,
+            max: 1,
+            divisions: 100,
+            value: rateSavedPerMonth.state,
+            onChanged: (value) => rateSavedPerMonth.state = value)
       ];
 
   List<Widget> _endOfYearCompanyBalanceRow(
