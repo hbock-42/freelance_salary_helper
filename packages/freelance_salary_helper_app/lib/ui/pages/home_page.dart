@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:freelance_salary_helper_app/models/france_data.dart';
 import 'package:freelance_salary_helper_app/ui/pages/loading_page.dart';
-import 'package:freelance_salary_helper_app/ui/themes/app_colors.dart';
 import 'package:freelance_salary_helper_app/ui/themes/text_styles.dart';
 import 'package:freelance_salary_helper_app/ui/widgets/cupertino_number_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 final tjmProvider = StateProvider<int>((ref) => initialTjm);
 const int minTjm = 0;
@@ -59,6 +59,9 @@ final yearTotalRevenueAfterTaxesProvider = Computed<double>((read) {
 });
 
 class HomePage extends HookWidget {
+  static const int _decimals = 0;
+  final f = NumberFormat(',###', "zz");
+
   @override
   Widget build(BuildContext context) {
     final tjm = useProvider(tjmProvider);
@@ -80,11 +83,11 @@ class HomePage extends HookWidget {
             SizedBox(height: 40),
             ..._rateSavedPerMonthRow(rateSavedPerMonth),
             SizedBox(height: 40),
-            ..._endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
+            _endOfYearCompanyBalanceRow(endOfYearCompanyBalance),
             SizedBox(height: 40),
-            ..._realSalaryPerMonthRow(realSalaryPerMonth),
+            _realSalaryPerMonthRow(realSalaryPerMonth),
             SizedBox(height: 40),
-            ..._yearTotalRevenueAfterTaxes(yearTotalRevenueAfterTaxes),
+            _yearTotalRevenueAfterTaxes(yearTotalRevenueAfterTaxes),
           ],
         ),
       ),
@@ -128,20 +131,15 @@ class HomePage extends HookWidget {
   List<Widget> _rateSavedPerMonthRow(
           StateController<double> rateSavedPerMonth) =>
       [
-        FittedBox(
-          fit: BoxFit.fitWidth,
-          child: RichText(
-            text: TextSpan(
-              text:
-                  'Pourcentage à laisser sur le compte entreprise à la fin du mois: ',
-              style: TextStyles.defaultText,
-              children: [
-                TextSpan(
-                    text:
-                        '${(rateSavedPerMonth.state * 100).toStringAsFixed(0)}%',
-                    style: TextStyles.important),
-              ],
-            ),
+        RichText(
+          text: TextSpan(
+            text: 'Percent to keep on company account: ',
+            style: TextStyles.defaultText,
+            children: [
+              TextSpan(
+                  text: '${f.format((rateSavedPerMonth.state * 100))}%',
+                  style: TextStyles.important),
+            ],
           ),
         ),
         Slider(
@@ -152,47 +150,55 @@ class HomePage extends HookWidget {
             onChanged: (value) => rateSavedPerMonth.state = value)
       ];
 
-  List<Widget> _endOfYearCompanyBalanceRow(
+  Widget _endOfYearCompanyBalanceRow(
     double endOffYearBalance,
   ) =>
-      [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Text(
-              "Argent sur le compte entreprise à la fin de l'année (apres IS)"),
+      RichText(
+        text: TextSpan(
+          text:
+              "Cash on company account at the end of the year (after taxes on society): ",
+          style: TextStyles.defaultText,
+          children: [
+            TextSpan(
+              text: '${f.format(endOffYearBalance)} €',
+              style: TextStyles.important,
+            )
+          ],
         ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text('${endOffYearBalance.toStringAsFixed(2)} €'),
-        ),
-      ];
+      );
 
-  List<Widget> _yearTotalRevenueAfterTaxes(
+  Widget _yearTotalRevenueAfterTaxes(
     double yearTotalRevenueAfterTaxes,
   ) =>
-      [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Text(
-              "Total gain après taxes par an (après impôt dividendes + full cashout)"),
+      RichText(
+        text: TextSpan(
+          text:
+              "Total gain after taxes per year (after dividend taxes + full cashout): ",
+          style: TextStyles.defaultText,
+          children: [
+            TextSpan(
+              text: '${f.format(yearTotalRevenueAfterTaxes)} €',
+              style: TextStyles.important,
+            )
+          ],
         ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text('${yearTotalRevenueAfterTaxes.toStringAsFixed(2)} €'),
-        ),
-      ];
+      );
 
-  List<Widget> _realSalaryPerMonthRow(
+  Widget _realSalaryPerMonthRow(
     double realSalaryPerMonth,
   ) =>
-      [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Text('Gain net par mois'),
+      FittedBox(
+        child: RichText(
+          text: TextSpan(
+            text: 'Total gain per months after taxes: ',
+            style: TextStyles.defaultText,
+            children: [
+              TextSpan(
+                text: '${f.format(realSalaryPerMonth)} €',
+                style: TextStyles.important,
+              ),
+            ],
+          ),
         ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text('${realSalaryPerMonth.toStringAsFixed(2)} €'),
-        ),
-      ];
+      );
 }

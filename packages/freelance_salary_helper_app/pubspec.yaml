@@ -15,6 +15,7 @@ dependencies:
   hooks_riverpod: ^0.2.0
   freezed_annotation:
   json_serializable: ^3.3.0
+  intl: ^0.16.1
 
 dev_dependencies:
   flutter_test:
