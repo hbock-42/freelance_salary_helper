@@ -21,8 +21,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.7.5
+
   build_runner:
   freezed: ^0.11.2
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
 
 flutter:
   uses-material-design: true
