@@ -25,7 +25,9 @@ void main() {
     DEF_CURRENCY_CODE: 'EUR',
   );
 
-  runApp(ProviderScope(
-      child: Directionality(
-          textDirection: TextDirection.ltr, child: LoadingPage())));
+  runApp(appWidget());
 }
+
+Widget appWidget() => ProviderScope(
+    child:
+        Directionality(textDirection: TextDirection.ltr, child: LoadingPage()));
